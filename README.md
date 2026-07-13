@@ -6,7 +6,7 @@ A browser automation workspace powered by two AI agents:
 
 ## Recommended Ecosystem
 - **macOS Users:** OpenCode + Muse Spark 1.1 + Antigravity is the recommended stack. Use `spark` and `antigrav` commands.
-- **Windows Users:** For a true "Claude Co-Work + Claude in Chrome" style experience, we highly recommend using **Cursor or Claude Code + Kimi Web Bridge**. (While `spark.ps1` and OpenCode will work on Windows, Cursor + Web Bridge provides a superior first-class browser automation layer on Windows).
+- **Windows Users:** For Windows, you should only run with **Cursor** (as your IDE/Coding agent) or the built-in **Antigravity** agent (`antigrav.ps1`) for browser automation. Do not use Claude or Kimi Web Bridge in this workflow.
 
 ## Quick Start (macOS)
 1. Clone repo: `git clone <repo-url> && cd muse-spark-python`
