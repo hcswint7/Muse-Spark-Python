@@ -1,0 +1,74 @@
+Below is a technical, opinionated comparison that is grounded in the public product/docs material I could verify. Because the two systems are not benchmarked on the exact same public test suite, the 0–10 scores are best treated as engineering estimates rather than lab-grade measurements.
+antigravity
++3
+
+Score table
+Dimension	Antigravity Agentic Browser	Rationale	Muse Spark 1.1	Rationale
+Speed	7	Antigravity is built around task-level orchestration and browser verification, which helps workflow speed but adds overhead from artifacts, manager/editor handoff, and verification steps. 
+antigravity
+	9	Meta describes Muse Spark 1.1 as significantly faster than Muse Spark and optimized for end-to-end latency via multi-agent orchestration. 
+meta
+
+Tool calling reliability	8	Antigravity emphasizes grouped tool calls, verification artifacts, and feedback loops, which usually improves operator trust and reduces “silent” agent drift. 
+antigravity
+	9	Meta explicitly says Muse Spark 1.1 adapts to diverse harnesses, handles complex multi-turn dynamics, and supports parallel tool calling. 
+meta
+
+Persistent Chrome handling	9	Antigravity uses a separate Chrome profile and keeps sign-ins persistent inside that isolated profile, which is a strong fit for browser automation. 
+antigravity
++1
+	6	Muse Spark 1.1 is strong at computer use, but its public description focuses on model capability rather than a browser-profile persistence layer. 
+meta
+
+Memory/context retention	8	Antigravity has explicit “self-improvement” and knowledge management, but the public docs emphasize product artifacts more than a very long context window. 
+antigravity
+	10	Muse Spark 1.1 explicitly manages a 1 million-token context window and says it remembers actions from much earlier work. 
+meta
+
+Ease of setup	8	Public preview, no-charge individual access, and browser/IDE integration make onboarding relatively straightforward. 
+antigravity
+	7	Meta Model API access and “Thinking” mode are straightforward, but operationalizing it as a browser agent still depends on your own harness. 
+meta
+
+Cost efficiency	9	Antigravity is publicly available at no charge for individuals with rate limits, which is very strong for experimentation. 
+antigravity
++1
+	8	Meta positions Muse Spark 1.1 as performance-efficient, but the exact cost depends on API usage and your implementation. 
+meta
+
+Browser fidelity	9	Antigravity’s browser verification, screenshots, and isolated Chrome profile make it feel close to a real user session. 
+antigravity
++1
+	8	Muse Spark 1.1 can operate computers and browsers with grounded multimodal reasoning, but the browser experience is more model-driven than browser-native. 
+meta
+
+Task completion accuracy	8	Antigravity’s emphasis on verification artifacts and human feedback should improve correctness on workflow-heavy tasks. 
+antigravity
+	9	Muse Spark 1.1 reports strong gains on coding, multimodal tasks, robustness, and long-horizon agentic workflows. 
+meta
+Radar chart code
+
+Here is Mermaid radar-style code using a xychart-beta approximation, since Mermaid does not have a native radar chart primitive in all renderers.
+
+text
+xychart-beta
+    title "Antigravity Agentic Browser vs Muse Spark 1.1"
+    x-axis ["Speed","Tool reliability","Persistent Chrome","Memory","Setup","Cost efficiency","Browser fidelity","Task accuracy"]
+    y-axis "Score" 0 --> 10
+    line "Antigravity" [7,8,9,8,8,9,9,8]
+    line "Muse Spark 1.1" [9,9,6,10,7,8,8,9]
+
+If you want an ASCII version instead, use this normalized sketch where farther right means stronger:
+
+text
+Speed                 A: #######      M: #########
+Tool reliability      A: ########     M: #########
+Persistent Chrome     A: #########    M: ######
+Memory/context        A: ########     M: ##########
+Setup                 A: ########     M: #######
+Cost efficiency       A: #########    M: ########
+Browser fidelity      A: #########    M: ########
+Task accuracy         A: ########     M: #########
+Playwright context
+
+Playwright persistent context means the browser keeps session state such as cookies and local storag

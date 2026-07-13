@@ -1,0 +1,14 @@
+#!/bin/zsh
+# Spark Muse launcher — loads .env and starts OpenCode
+SCRIPT_DIR="$HOME/muse-spark-python"
+
+# Load env vars from .env file (handles spaces in values and quoted values)
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  source "$SCRIPT_DIR/.env"
+  set +a
+fi
+
+# Launch OpenCode from the project directory
+cd "$SCRIPT_DIR"
+/Users/hswin/.opencode/bin/opencode "$@"

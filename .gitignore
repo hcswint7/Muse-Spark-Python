@@ -1,0 +1,41 @@
+# Secrets
+.env
+.env.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Binary artifacts (screenshots, charts, temp files)
+*.png
+*.pdf
+*.jpg
+*.jpeg
+/tmp/
+*.log
+
+# Output data files
+*_full.txt
+*_text.txt
+canvas_due_assignments.txt
+perplexity_*_response.txt
+perplexity_radar_latest_response.txt
+radar_chart_ascii.txt
+radar_chart_data.csv
+
+# macOS
+.DS_Store
+Thumbs.db
+
+# Chrome debug profile (never commit browser data)
+chrome-debug-profile/
+
+# Execution artifacts
+execution
+browser_exploration_log.json
+browser_exploration_summary.txt
+
+# Cookbook nested repo
+meta-model-cookbook/.git/

@@ -1,0 +1,12 @@
+#!/bin/zsh
+# Antigravity browser agent launcher for macOS
+SCRIPT_DIR="$HOME/muse-spark-python"
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a; source "$SCRIPT_DIR/.env"; set +a
+fi
+# Clean stale Chrome locks before launch
+rm -f "$HOME/chrome-debug-profile/SingletonLock" \
+      "$HOME/chrome-debug-profile/SingletonSocket" \
+      "$HOME/chrome-debug-profile/SingletonCookie" 2>/dev/null
+cd "$SCRIPT_DIR"
+"$SCRIPT_DIR/.venv/bin/python" antigrav_agent.py "$@"
