@@ -5,8 +5,28 @@ A browser automation workspace powered by two AI agents:
 2. **Antigravity**: Autonomous browser and system automation agent.
 
 ## Recommended Ecosystem
-- **macOS Users:** OpenCode + Muse Spark 1.1 + Antigravity is the recommended stack. Use `spark` and `antigrav` commands.
-- **Windows Users:** For Windows, you should only run with **Cursor** (as your IDE/Coding agent) or the built-in **Antigravity** agent (`antigrav.ps1`) for browser automation. Do not use Claude or Kimi Web Bridge in this workflow.
+This workspace is built to run entirely on **OpenCode** (for autonomous coding) and **Antigravity** (for autonomous browser control) across both macOS and Windows. Do not use Claude or Kimi Web Bridge in this workflow.
+
+### Installing OpenCode
+OpenCode is a terminal-native AI coding agent. You must install it before running the `spark` launcher.
+
+**For macOS / Linux:**
+The fastest way to install is via the official curl script:
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+**For Windows (Recommended: WSL):**
+For maximum compatibility with terminal utilities, installing via Windows Subsystem for Linux (WSL) is highly recommended.
+1. Open PowerShell as Administrator and run `wsl --install`.
+2. Restart your computer and open the new Ubuntu/WSL terminal.
+3. Install Node and Git: `sudo apt update && sudo apt install -y nodejs npm git`
+4. Run the Linux install script: `curl -fsSL https://opencode.ai/install | bash`
+
+**For Windows (Native Alternative):**
+If you prefer not to use WSL, you can install OpenCode natively on Windows:
+* **Option A:** Download the graphical installer directly from [opencode.ai](https://opencode.ai).
+* **Option B:** Install via NPM using PowerShell: `npm install -g opencode-ai`
 
 ## Quick Start (macOS)
 1. Clone repo: `git clone <repo-url> && cd muse-spark-python`
