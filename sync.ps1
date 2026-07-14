@@ -1,6 +1,5 @@
 # Sync script for Windows - Self-updating agent helper
-$ScriptDir = "$env:USERPROFILE\muse-spark-python"
-Set-Location -Path $ScriptDir
+Set-Location -Path $PSScriptRoot
 Write-Output "Syncing repository..."
 git pull origin main --rebase
 git add .

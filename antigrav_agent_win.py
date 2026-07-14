@@ -195,13 +195,7 @@ async def read_local_file(filepath: str) -> str:
 async def run_agent_loop():
     global browser, page
 
-    # Load exploration summary for context if it exists
     exploration_context = ""
-    try:
-        with open(os.path.expanduser("~/muse-spark-python/browser_exploration_summary.txt"), "r") as f:
-            exploration_context = f"\n\nPAST EXPLORATION MEMORY:\n{f.read()}"
-    except Exception:
-        pass
 
     # Configure the Google Antigravity Agent
     config = LocalAgentConfig(

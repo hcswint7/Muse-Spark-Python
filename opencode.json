@@ -13,6 +13,11 @@
           "name": "Muse Spark 1.1"
         }
       }
+    },
+    "google": {
+      "options": {
+        "apiKey": "{env:GEMINI_API_KEY}"
+      }
     }
   }
 }

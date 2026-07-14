@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Sync script for macOS - Self-updating agent helper
-cd "$HOME/muse-spark-python"
+cd "$(dirname "$0")"
 echo "Syncing repository..."
 git pull origin main --rebase
 git add .

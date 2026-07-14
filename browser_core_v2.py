@@ -39,11 +39,15 @@ from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
-load_dotenv("/Users/hswin/muse-spark-python/.env", override=True)
+# Determine the project root dynamically based on the location of this file
+PROJECT_ROOT = Path(__file__).resolve().parent
+
+load_dotenv(override=True)
+load_dotenv(PROJECT_ROOT / ".env", override=True)
 
 # --- STATE.md Pattern (from 03_managing_context) ---
 
-STATE_PATH = Path("/Users/hswin/muse-spark-python/STATE.md")
+STATE_PATH = PROJECT_ROOT / "STATE.md"
 STATE_DEFAULT = """# Browser Automation - Working Memory (Muse Spark)
 
 ## Goal
@@ -224,8 +228,10 @@ def verified_fill(page, selector, value, verify_via="evaluate"):
     elif verify_via == "screenshot":
         # Take screenshot after fill, OCR back? For TOTP, we'd need OCR again
         # Simpler: screenshot
-        page.screenshot(path="/tmp/verify_fill.png")
-        print(f"[verify] Screenshot after fill saved to /tmp/verify_fill.png")
+        import tempfile
+        verify_path = os.path.join(tempfile.gettempdir(), "verify_fill.png")
+        page.screenshot(path=verify_path)
+        print(f"[verify] Screenshot after fill saved to {verify_path}")
         return True
     return True
 
@@ -339,8 +345,9 @@ class EnteAuthManager:
     def capture_cropped_secure(self):
         """Capture and crop Ente window, secure delete full, return cropped path"""
         x,y,w,h = self.get_window_position_normalized()
-        full_path = "/tmp/ente_full.png"
-        cropped_path = "/tmp/ente_cropped.png"
+        import tempfile
+        full_path = os.path.join(tempfile.gettempdir(), "ente_full.png")
+        cropped_path = os.path.join(tempfile.gettempdir(), "ente_cropped.png")
         
         # Screenshot
         subprocess.run(['screencapture', '-x', full_path], capture_output=True, timeout=10)
@@ -436,7 +443,8 @@ class EnteAuthManager:
         
         print(f"[secure] Failed after {max_retries} attempts")
         # Clean any leftovers
-        for p in ["/tmp/ente_full.png","/tmp/ente_cropped.png"]:
+        import tempfile
+        for p in [os.path.join(tempfile.gettempdir(), "ente_full.png"), os.path.join(tempfile.gettempdir(), "ente_cropped.png")]:
             try: os.remove(p)
             except: pass
         return None
