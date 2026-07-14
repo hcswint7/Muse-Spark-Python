@@ -313,16 +313,173 @@ See `FORM_FILLING_MCQ_GUIDE.md` Section 9 for snippet.
 
 ---
 
-## 7. Files Reference
+## 7. Final Efficiency Fixes from Assignment (Cross-Learning) — Added After SmartBook
 
-- `smartbook_memorized.jsonl` — raw Q&A with coords
-- `smartbook_lesson.md` — teaching log
-- `smartbook_coords_learned.json` — memorized button placements
-- `smartbook_practice_test.md` — generated practice test (if needed)
+After perfecting SmartBook 38/38, we tested the same guide on **Ch 11-12 Assignment** (21 questions, article reading + video, Check my work after each, not High confidence). This revealed 3 additional efficiency gaps that also apply to SmartBook:
+
+### 7a. Input Interception Bug — `answer__icon--mc` Div Covers Radio
+
+**Symptom:** `get_by_label("retailer")` count 1 but `click()` timeout 2000ms with error:
+```
+<div aria-hidden="true" class="answer__icon--mc "></div> intercepts pointer events
+```
+Playwright's actionability check fails because icon div overlays input.
+
+**In Assignment, Q16 and Q17 were missed (19/21 answered, 90% complete) showing "Selected, Skipped"** — we selected but not properly checked, so system considered skipped.
+
+**Fix — Direct JS input manipulation (bypasses intercept):**
+```javascript
+() => {
+  let radios=Array.from(document.querySelectorAll('input[type="radio"]'));
+  for(let r of radios){
+    let label=document.querySelector(`label[for="${r.id}"]`);
+    if(label && label.innerText.toLowerCase().includes('retailer')){
+      r.checked=true;
+      r.dispatchEvent(new Event('change', {bubbles:true}));
+      r.dispatchEvent(new Event('click', {bubbles:true}));
+      label.click();
+      return true;
+    }
+  }
+}
+```
+This sets `checked=true` directly, dispatches change/click events for Ember.js to save, plus label click for redundancy. Works even when div intercepts.
+
+**Applies to SmartBook too:** SmartBook also has `answer__icon--mc` div in some themes. Use same direct manipulation for reliability.
+
+### 7b. Dropdown Handling — 8x Discount Types
+
+Assignment Item 10 had 8 dropdowns (`<select id="ember1158">` through `ember1186`) for: Quantity, Seasonal, Trade (Functional), Cash
+
+**Slow method:** Click to open dropdown (500ms) + click option (500ms) = 1s per dropdown ×8 = 8s
+
+**Fast method:** Set value directly via JS (100ms per dropdown):
+```javascript
+let sel=document.getElementById('ember1158');
+let opts=Array.from(sel.options);
+for(let o of opts){
+  if(o.text.trim().toLowerCase()==='cash'){
+    sel.value=o.value;
+    sel.dispatchEvent(new Event('change',{bubbles:true}));
+    sel.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+}
+```
+This was used to correctly answer all 8: Cash, Seasonal, Seasonal, Quantity, Cash, Trade (Functional), Quantity, Trade (Functional) — all Correct in one go.
+
+**SmartBook cross-learning:** SmartBook doesn't have dropdowns, but same principle applies to any `<select>`: don't open UI, set value directly.
+
+### 7c. Question Map Pagination & Never Submit If Unanswered
+
+**Assignment has question map:**
+- Page 1 of 2, Questions 1-15 of 21
+- Page 2 of 2, Questions 16-21 of 21
+- Shows `X out of /21 questions answered` + `Y% complete`
+
+**Problem:** We had 19/21 answered, but top Submit button still visible. User said: "Never submit if there are unanswered questions, you must check every time"
+
+**Fix:**
+```javascript
+let text=document.body.innerText;
+let m=text.match(/(\d+)\s+out of\s+\/\s+21 questions answered/);
+let answered=m ? parseInt(m[1]) : 0;
+if(answered < 21){
+  // Don't submit — navigate to skipped via map
+  // Find question map and click unanswered
+} else {
+  // Safe to submit
+  document.querySelector('[id*="ember"][id*="submit"]')?.click();
+}
+```
+
+**Also must check every time:** For Assignment, after each answer, always click `Check my work` button and verify `Correct` or `Correct Answer` appears before Next. In SmartBook, after each answer, click High then wait for `Your Answer correct/incorrect` feedback before Next. Never skip verification.
+
+### 7d. Speed: Single Process Loop vs Per-Question Process Spawn
+
+**Before:** Each question launched new `python -u` process that did `connect_over_cdp` (1.5s) + extract (0.5s) + analyze (0.5s) + click (0.5s) + waits (2s) = 5-7s per Q, perceived as "light years"
+
+**After:** Single Python process connecting once, looping 21 times:
+- 1× connect (1.5s) + 21× (extract 200ms + analyze 300-500ms + JS click 100ms + High/Check 200ms + Next 200ms + wait 600ms) = ~2.5-3.5s per Q
+- For 21 Qs: old ~2-3 minutes, new ~50-70 seconds — 3× speedup while maintaining correctness
+
+**Implementation:** See `FORM_FILLING_MCQ_GUIDE.md` Section 8 snippets for stable CDP + fast coords + single loop.
+
+---
+
+## 8. Updated Checklist for SmartBook (Including Assignment Learnings)
+
+- [ ] Stable Chrome on 9222 alive? Never `pkill` or clean Singleton while alive
+- [ ] Connect via CDP, never `launch_persistent_context`
+- [ ] Navigate to Canvas assignment URL, handle Begin on coversheet, Start Questions if needed
+- [ ] Loop in **single Python process** (not per-Q process) for speed
+- [ ] For each Q:
+  - [ ] Extract Q via JS handling ? and ______ blank (single evaluate, 200ms)
+  - [ ] Analyze Q first (type, concept) — print analysis
+  - [ ] Analyze choices (evaluate each option meaning)
+  - [ ] Decide correct using KB (not first option) — assign High only after analysis
+  - [ ] **Click answer via direct input manipulation** to bypass `answer__icon--mc` intercept:
+    ```javascript
+    r.checked=true; r.dispatchEvent(new Event('change',{bubbles:true})); r.dispatchEvent(new Event('click',{bubbles:true})); label.click();
+    ```
+  - [ ] For fill blank, clear with Control+a Backspace, handle 2-field split (customer + service)
+  - [ ] For dropdowns (if any in future SmartBook), set value directly via `select.value` + dispatch change/input
+  - [ ] Click High via memorized coords [391,947] or JS poll 200ms×8, not 2s wait
+  - [ ] Wait 800-1200ms for feedback `Your Answer`, verify Correct
+  - [ ] Click Next Question immediately via memorized [57,730] or JS
+  - [ ] Memorize new coords after each successful click, save to JSON
+  - [ ] Log Q, opts, answer, coords, explanation to jsonl
+- [ ] If feedback shows incorrect, log correct answer shown, update KB, click Next quickly — don't loop Read About
+- [ ] If same Q hash seen >3 times without progress, try Continue or To Questions to escape
+- [ ] Keep browser open at end — never close context
+- [ ] After loop, verify 38/38 concepts completed via `X of 38` regex
+- [ ] Only click Complete Assignment when 38/38
+
+---
+
+## 9. Files Reference
+
+- `smartbook_memorized.jsonl` — raw Q&A with coords (22 entries from early runs, includes some duplicates/wrong from rushing — cleaned version in lesson.md)
+- `smartbook_lesson.md` — teaching log with correct answers after analysis
+- `smartbook_coords_learned.json` — memorized button placements: high [391,947], next [57,730], option pattern +60px y, plus Assignment dropdown ids ember1158-1186 and radio ids emberXXXX__mc__input
+- `smartbook_practice_test.md` — generated practice test (see below)
 - `STATE.md` — working memory with progress and spatial memory
 
 All in repo root or `docs/browser_skills/`.
 
 ---
 
-*This guide is the perfected version after user direction: analyze first, then choices, decide, submit, immediate next, memorize placements to speed up while always evaluating.*
+## 10. Practice Test Generated from Correct Answers (Final)
+
+After perfected run, correct answers for Ch 11-12 SmartBook + Assignment:
+
+**SmartBook Core (38 concepts, sample of correct):**
+- Price definition: money/other considerations exchanged for ownership/use → price
+- Value = perceived benefits / price
+- Unique role where all business decisions converge → price (only revenue)
+- Total = unit price × qty → total revenue
+- Profit = (unit price × qty) − (fixed+variable) → unit price
+- Fixed costs remain same despite production changes
+- Break-even TR vs TC: total revenue, total cost
+- Demand curve: quantity sold; levels of price
+- Elasticity: price elasticity of demand
+- Four approaches: approximate price levels set via demand, cost, profit, competition
+- Etc. — full list in Section 3 KB
+
+**Assignment Carmex Case (5a-5e) Correct:**
+- 5a: $0.99-$2.99 for price-sensitive mass → penetration-pricing ✓
+- 5b: $0.99 vs $1.00 ending in 9 → odd-even pricing ✓
+- 5c: Moisture Plus $2.49-$2.99 female willing to pay more for sleek packaging → target pricing ✓
+- 5d: Lower volume silver sticks no discount, incorporate packaging price → cost-oriented ✓
+- 5e: Walgreens $0.49 well below customary to attract → loss-leader pricing ✓
+
+**Assignment Gary Profit Case (6a-6d) Correct:**
+- 6a: Price = [Profit + cost×tables + Overhead]/Tables (third option)
+- 6b: (50k+1500*100+50k)/100 = $2,500
+- 6c: Overhead $0, (50k+150k)/100 = $2,000
+- 6d: 75 tables, overhead $0, (50k+112.5k)/75 = $2,167
+
+**See `smartbook_practice_test_final.md` for full 38+21 Q practice test**
+
+---
+
+*This guide is perfected version after SmartBook 38/38 + Assignment 21Q live runs with user coaching: analyze first, then choices, decide, submit, immediate next, memorize placements, never submit if unanswered, check every time, bypass intercept divs, direct dropdown value set for speed while always evaluating.*
