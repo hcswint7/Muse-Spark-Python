@@ -53,5 +53,6 @@ Run `./sync.sh` (Mac) or `.\sync.ps1` (Windows) to automatically pull and push c
 - `browser_core_v2.py`: The active core handling retry, stuck detection, and verified fill.
 - `antigrav_agent.py`: macOS browser agent.
 - `antigrav_agent_win.py`: Windows browser agent (auto-detects Windows Chrome paths).
+- `docs/browser_skills/FORM_FILLING_MCQ_GUIDE.md`: Protocol for autonomous MCQ answering and form-filling.
 - `meta-model-cookbook/`: Upstream patterns integrated into this project.
 - `legacy/`: Old v1 scripts kept for reference.
